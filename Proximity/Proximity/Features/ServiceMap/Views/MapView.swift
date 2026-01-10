@@ -3,15 +3,16 @@
 //  Proximity
 //
 //  Created by etudiant on 18/11/2025.
+//  Refactored to use ServicePointUI
 //
 
 import SwiftUI
 import MapKit
 
 struct MapView: View {
-    let services: [any ServicePoint]
+    let services: [ServicePointUI]
     let userLocation: CLLocation?
-    @Binding var selectedService: (any ServicePoint)?
+    @Binding var selectedService: ServicePointUI?
     
     @State private var cameraPosition: MapCameraPosition = .automatic
     
@@ -33,8 +34,7 @@ struct MapView: View {
             }
             
             // Points de service
-            ForEach(services.indices, id: \.self) { index in
-                let service = services[index]
+            ForEach(services) { service in
                 Annotation(service.name, coordinate: service.coordinate) {
                     ServiceAnnotationView(service: service)
                 }
@@ -74,38 +74,24 @@ struct MapView: View {
 }
 
 struct ServiceAnnotationView: View {
-    let service: any ServicePoint
+    let service: ServicePointUI
     
     var body: some View {
         VStack(spacing: 0) {
-            Image(systemName: service.serviceType.iconName)
+            Image(systemName: service.iconName)
                 .font(.title3)
                 .foregroundStyle(.white)
                 .padding(8)
                 .background(
                     Circle()
-                        .fill(colorForService(service.serviceType))
+                        .fill(service.color)
                         .shadow(radius: 3)
                 )
             
             Image(systemName: "arrowtriangle.down.fill")
                 .font(.caption)
-                .foregroundStyle(colorForService(service.serviceType))
+                .foregroundStyle(service.color)
                 .offset(y: -5)
-        }
-    }
-    
-    private func colorForService(_ type: ServiceType) -> Color {
-        switch type.color {
-        case "green": return .green
-        case "blue": return .blue
-        case "orange": return .orange
-        case "purple": return .purple
-        case "red": return .red
-        case "yellow": return .yellow
-        case "cyan": return .cyan
-        case "brown": return .brown
-        default: return .gray
         }
     }
 }

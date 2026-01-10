@@ -3,13 +3,14 @@
 //  Proximity
 //
 //  Created by etudiant on 18/11/2025.
+//  Refactored to use ServicePointUI
 //
 
 import SwiftUI
 import MapKit
 
 struct ServiceDetailView: View {
-    let service: any ServicePoint
+    let service: ServicePointUI
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -27,7 +28,22 @@ struct ServiceDetailView: View {
                         )
                     ))) {
                         Annotation(service.name, coordinate: service.coordinate) {
-                            ServiceAnnotationView(service: service)
+                            VStack(spacing: 0) {
+                                Image(systemName: service.iconName)
+                                    .font(.title3)
+                                    .foregroundStyle(.white)
+                                    .padding(8)
+                                    .background(
+                                        Circle()
+                                            .fill(service.color)
+                                            .shadow(radius: 3)
+                                    )
+                                
+                                Image(systemName: "arrowtriangle.down.fill")
+                                    .font(.caption)
+                                    .foregroundStyle(service.color)
+                                    .offset(y: -5)
+                            }
                         }
                     }
                     .frame(height: 200)
@@ -48,28 +64,24 @@ struct ServiceDetailView: View {
                         }
                         
                         // Adresse
-                        if let address = service.address {
-                            HStack(alignment: .top) {
-                                Image(systemName: "location.fill")
-                                    .foregroundStyle(.secondary)
-                                    .frame(width: 24)
-                                Text(address)
-                                    .font(.body)
-                                    .foregroundStyle(.secondary)
-                                Spacer()
-                            }
+                        HStack(alignment: .top) {
+                            Image(systemName: "location.fill")
+                                .foregroundStyle(.secondary)
+                                .frame(width: 24)
+                            Text(service.displayAddress)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                            Spacer()
                         }
                         
                         // Distance
-                        if let distance = service.distance {
-                            HStack {
-                                Image(systemName: "ruler")
-                                    .foregroundStyle(.secondary)
-                                    .frame(width: 24)
-                                Text(formatDistance(distance))
-                                    .font(.body)
-                                Spacer()
-                            }
+                        HStack {
+                            Image(systemName: "ruler")
+                                .foregroundStyle(.secondary)
+                                .frame(width: 24)
+                            Text(service.formattedDistance)
+                                .font(.body)
+                            Spacer()
                         }
                     }
                     .padding()
@@ -163,23 +175,13 @@ struct ServiceDetailView: View {
         }
     }
     
-    private func formatDistance(_ distance: Double) -> String {
-        if distance < 1000 {
-            return "\(Int(distance)) m"
-        } else {
-            return String(format: "%.1f km", distance / 1000)
-        }
-    }
-    
     private var shareText: String {
         var text = "\(service.name)\n"
         if let address = service.address {
             text += "\(address)\n"
         }
         text += "Type: \(service.serviceType.rawValue)\n"
-        if let distance = service.distance {
-            text += "Distance: \(formatDistance(distance))\n"
-        }
+        text += "Distance: \(service.formattedDistance)\n"
         text += "Coordonnées: \(service.coordinate.latitude), \(service.coordinate.longitude)"
         return text
     }
@@ -195,12 +197,12 @@ struct ServiceDetailView: View {
 }
 
 struct ServiceHeaderView: View {
-    let service: any ServicePoint
+    let service: ServicePointUI
     
     var body: some View {
         VStack(spacing: 12) {
             // Grande icône
-            Image(systemName: service.serviceType.iconName)
+            Image(systemName: service.iconName)
                 .font(.system(size: 60))
                 .foregroundStyle(.white)
                 .frame(width: 120, height: 120)
@@ -209,12 +211,11 @@ struct ServiceHeaderView: View {
                         .fill(
                             LinearGradient(
                                 colors: [
-                                    colorForService(service.serviceType),
-                                    colorForService(service.serviceType).opacity(0.7)
+                                    service.color,
+                                    service.color.opacity(0.7)
                                 ],
                                 startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+                                endPoint: .bottomTrailing)
                         )
                         .shadow(radius: 10)
                 )
@@ -226,34 +227,4 @@ struct ServiceHeaderView: View {
         }
         .padding()
     }
-    
-    private func colorForService(_ type: ServiceType) -> Color {
-        switch type.color {
-        case "green": return .green
-        case "blue": return .blue
-        case "orange": return .orange
-        case "purple": return .purple
-        case "red": return .red
-        case "yellow": return .yellow
-        case "cyan": return .cyan
-        case "brown": return .brown
-        default: return .gray
-        }
-    }
-}
-
-#Preview {
-    ServiceDetailView(
-        service: VelibStation(
-            id: "1",
-            name: "Station Test",
-            coordinate: CLLocationCoordinate2D(latitude: 48.8566, longitude: 2.3522),
-            address: "1 Rue de Rivoli, 75001 Paris",
-            distance: 350,
-            availableBikes: 5,
-            availableStands: 10,
-            totalStands: 15,
-            status: "OPEN"
-        )
-    )
 }

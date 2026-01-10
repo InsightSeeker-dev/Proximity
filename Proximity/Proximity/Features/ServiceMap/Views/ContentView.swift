@@ -3,6 +3,7 @@
 //  Proximity
 //
 //  Created by etudiant on 18/11/2025.
+//  Refactored to use ServicePointUI
 //
 
 import SwiftUI
@@ -11,7 +12,7 @@ import MapKit
 struct ContentView: View {
     @StateObject private var viewModel = ProximityViewModel()
     @State private var showServiceSelector = false
-    @State private var selectedService: (any ServicePoint)?
+    @State private var selectedService: ServicePointUI?
     
     var body: some View {
         NavigationStack {

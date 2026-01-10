@@ -3,16 +3,17 @@
 //  Proximity
 //
 //  Created by etudiant on 18/11/2025.
+//  Refactored to use ServicePointUI
 //
 
 import SwiftUI
 
 struct ServiceListView: View {
-    let services: [any ServicePoint]
+    let services: [ServicePointUI]
     let isLoading: Bool
-    @Binding var selectedService: (any ServicePoint)?
+    @Binding var selectedService: ServicePointUI?
     @State private var showingDetail = false
-    @State private var detailService: (any ServicePoint)?
+    @State private var detailService: ServicePointUI?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -68,16 +69,16 @@ struct ServiceListView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(services.indices, id: \.self) { index in
-                            ServiceRowView(service: services[index])
+                        ForEach(services) { service in
+                            ServiceRowView(service: service)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
-                                    selectedService = services[index]
-                                    detailService = services[index]
+                                    selectedService = service
+                                    detailService = service
                                     showingDetail = true
                                 }
                             
-                            if index < services.count - 1 {
+                            if service.id != services.last?.id {
                                 Divider()
                                     .padding(.leading, 60)
                             }
@@ -99,18 +100,18 @@ struct ServiceListView: View {
 }
 
 struct ServiceRowView: View {
-    let service: any ServicePoint
+    let service: ServicePointUI
     
     var body: some View {
         HStack(spacing: 12) {
             // Icône du service
-            Image(systemName: service.serviceType.iconName)
+            Image(systemName: service.iconName)
                 .font(.title2)
                 .foregroundStyle(.white)
                 .frame(width: 44, height: 44)
                 .background(
                     Circle()
-                        .fill(colorForService(service.serviceType))
+                        .fill(service.color)
                 )
             
             // Informations
@@ -119,16 +120,14 @@ struct ServiceRowView: View {
                     .font(.headline)
                     .lineLimit(1)
                 
-                if let address = service.address {
-                    Text(address)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
+                Text(service.displayAddress)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
                 
                 // Informations supplémentaires
-                if let firstInfo = service.additionalInfo.first {
-                    Text("\(firstInfo.key): \(firstInfo.value)")
+                if let firstInfo = service.firstAdditionalInfo {
+                    Text(firstInfo)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -137,46 +136,22 @@ struct ServiceRowView: View {
             Spacer()
             
             // Distance
-            if let distance = service.distance {
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(formatDistance(distance))
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                    
-                    Text(service.serviceType.rawValue)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(service.formattedDistance)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                
+                Text(service.serviceType.rawValue)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
     }
-    
-    private func formatDistance(_ distance: Double) -> String {
-        if distance < 1000 {
-            return "\(Int(distance)) m"
-        } else {
-            return String(format: "%.1f km", distance / 1000)
-        }
-    }
-    
-    private func colorForService(_ type: ServiceType) -> Color {
-        switch type.color {
-        case "green": return .green
-        case "blue": return .blue
-        case "orange": return .orange
-        case "purple": return .purple
-        case "red": return .red
-        case "yellow": return .yellow
-        case "cyan": return .cyan
-        case "brown": return .brown
-        default: return .gray
-        }
-    }
 }
 
 #Preview {
-    @Previewable @State var selectedService: (any ServicePoint)? = nil
+    @Previewable @State var selectedService: ServicePointUI? = nil
     
     ServiceListView(
         services: [],
