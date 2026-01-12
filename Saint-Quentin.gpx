@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Xcode">
+    <!-- Saint-Quentin (02) - Centre-ville -->
+    <wpt lat="49.8484" lon="3.2872">
+        <name>Saint-Quentin Centre</name>
+    </wpt>
+    
+    <!-- Saint-Quentin - Gare -->
+    <wpt lat="49.8470" lon="3.2860">
+        <name>Gare de Saint-Quentin</name>
+    </wpt>
+    
+    <!-- Saint-Quentin - Place de l'Hôtel de Ville -->
+    <wpt lat="49.8489" lon="3.2878">
+        <name>Place de l'Hôtel de Ville</name>
+    </wpt>
+    
+    <!-- Saint-Quentin - Basilique -->
+    <wpt lat="49.8475" lon="3.2895">
+        <name>Basilique Saint-Quentin</name>
+    </wpt>
+</gpx>
