@@ -28,8 +28,8 @@ class ProximityViewModel: ObservableObject {
     /// Si défini, affiche uniquement ce type
     @Published var serviceTypeFilter: ServiceType? = nil
     
-    /// Rayon de recherche en kilomètres
-    @Published var searchRadius: Double = 2.0
+    /// Rayon de recherche en kilomètres (optimisé pour réduire les timeouts)
+    @Published var searchRadius: Double = 1.5
     
     /// Indicateur de chargement
     @Published var isLoading: Bool = false
@@ -83,14 +83,11 @@ class ProximityViewModel: ObservableObject {
             MetroStationRepository(remoteDataSource: overpassDataSource)
         ]
         
-        // Services activés par défaut (les plus utiles au quotidien)
+        // Services activés par défaut (optimisés pour performance et fiabilité)
         selectedServiceTypes = [
-            .restaurant,      // Restaurants
-            .pharmacy,        // Pharmacies
-            .atm,            // Distributeurs
-            .bakery,         // Boulangeries
-            .hospital,       // Hôpitaux (urgences)
-            .busStop         // Arrêts de bus
+            .restaurant,        // 2851 résultats à Paris, très fiable (1.0s)
+            .chargingStation,   // 519 résultats, API différente (OpenDataSoft)
+            .library            // 56 résultats, très rapide (0.61s)
         ]
     }
     
@@ -126,41 +123,32 @@ class ProximityViewModel: ObservableObject {
         } else {
             // Sinon, récupérer tous les types activés
             typesToFetch = selectedServiceTypes
-        }
         
         // Récupérer les services de tous les repositories concernés
-        await withTaskGroup(of: Result<[ServicePoint], Error>.self) { group in
-            for repository in repositories where typesToFetch.contains(repository.serviceType) && repository.isEnabled {
-                group.addTask {
-                    do {
-                        let results = try await repository.fetchNearbyServices(
-                            around: coordinate,
-                            radius: self.searchRadius
-                        )
-                        return .success(results)
-                    } catch {
-                        return .failure(error)
-                    }
+        // Utilisation de requêtes séquentielles avec délai pour éviter le rate limiting
+        var allServices: [ServicePoint] = []
+        
+        for repository in repositories where typesToFetch.contains(repository.serviceType) && repository.isEnabled {
+            do {
+                // Délai de 500ms entre chaque requête pour éviter le rate limiting (429)
+                if !allServices.isEmpty {
+                    try await Task.sleep(for: .milliseconds(500))
                 }
+                
+                let results = try await repository.fetchNearbyServices(
+                    around: coordinate,
+                    radius: self.searchRadius
+                )
+                allServices.append(contentsOf: results)
+            } catch {
+                // En cas d'erreur, continuer avec les autres services
+                print("⚠️ Erreur lors de la récupération de \(repository.serviceType.rawValue): \(error)")
             }
-            
-            var allServices: [ServicePoint] = []
-            
-            for await result in group {
-                switch result {
-                case .success(let servicePoints):
-                    allServices.append(contentsOf: servicePoints)
-                case .failure(let error):
-                    print("Erreur lors de la récupération des services: \(error)")
-                }
-            }
-            
-            // Convertir en modèles UI
-            services = allServices.map { ServicePointUI(from: $0) }
         }
         
-        // Trier par distance
-        services.sort { ($0.distance ?? .infinity) < ($1.distance ?? .infinity) }
+        // Convertir en modèles UI et trier par distance
+        services = allServices.map { ServicePointUI(from: $0) }
+            .sorted { ($0.distance ?? .infinity) < ($1.distance ?? .infinity) }
         
         // Limiter aux 10 services les plus proches
         // Si un filtre est actif, ce sont les 10 plus proches de CE type
