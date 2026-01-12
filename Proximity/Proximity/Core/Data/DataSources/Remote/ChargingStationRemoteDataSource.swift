@@ -11,6 +11,19 @@ import CoreLocation
 /// Source de données distante pour les bornes de recharge via OpenDataSoft
 class ChargingStationRemoteDataSource {
     
+    private let urlSession: URLSession
+    
+    init() {
+        // Configuration URLSession optimisée
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 30
+        config.timeoutIntervalForResource = 45
+        config.requestCachePolicy = .returnCacheDataElseLoad
+        config.urlCache = URLCache(memoryCapacity: 5 * 1024 * 1024, diskCapacity: 20 * 1024 * 1024)
+        
+        self.urlSession = URLSession(configuration: config)
+    }
+    
     /// Récupère les bornes de recharge depuis l'API OpenDataSoft
     /// - Parameters:
     ///   - location: Position centrale de la recherche
@@ -32,7 +45,7 @@ class ChargingStationRemoteDataSource {
             throw DataSourceError.invalidURL
         }
         
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let (data, response) = try await urlSession.data(from: url)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw DataSourceError.invalidResponse

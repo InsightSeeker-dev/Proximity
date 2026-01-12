@@ -12,6 +12,18 @@ import CoreLocation
 class OverpassRemoteDataSource {
     
     private let baseURL = "https://overpass-api.de/api/interpreter"
+    private let urlSession: URLSession
+    
+    init() {
+        // Configuration URLSession optimisée
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 45 // Timeout pour la requête
+        config.timeoutIntervalForResource = 60 // Timeout pour la ressource complète
+        config.requestCachePolicy = .returnCacheDataElseLoad // Utiliser le cache si disponible
+        config.urlCache = URLCache(memoryCapacity: 10 * 1024 * 1024, diskCapacity: 50 * 1024 * 1024) // 10MB RAM, 50MB disque
+        
+        self.urlSession = URLSession(configuration: config)
+    }
     
     /// Récupère les toilettes publiques depuis Overpass
     func fetchToilets(around location: CLLocationCoordinate2D, radius: Double) async throws -> [OverpassElement] {
@@ -54,7 +66,7 @@ class OverpassRemoteDataSource {
         request.httpBody = query.data(using: .utf8)
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await urlSession.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw DataSourceError.invalidResponse
