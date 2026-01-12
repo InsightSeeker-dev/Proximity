@@ -37,6 +37,17 @@ class ProximityViewModel: ObservableObject {
     /// Message d'erreur
     @Published var errorMessage: String?
     
+    // MARK: - Cache Local
+    
+    /// Cache des résultats par type de service avec timestamp et location
+    private var cachedResults: [ServiceType: ([ServicePoint], Date, CLLocation)] = [:]
+    
+    /// Durée de validité du cache (5 minutes)
+    private let cacheValidityDuration: TimeInterval = 300
+    
+    /// Distance maximale pour considérer le cache valide (500m)
+    private let maxCacheDistance: Double = 500
+    
     // MARK: - Private Properties
     
     private var repositories: [ServiceRepository] = []
@@ -123,12 +134,41 @@ class ProximityViewModel: ObservableObject {
         } else {
             // Sinon, récupérer tous les types activés
             typesToFetch = selectedServiceTypes
+        }
+        
+        // Vérifier le cache avant de faire les requêtes
+        var allServices: [ServicePoint] = []
+        var typesToFetchFromAPI: Set<ServiceType> = []
+        
+        for serviceType in typesToFetch {
+            if let (cachedServices, cacheDate, cacheLocation) = cachedResults[serviceType] {
+                let timeSinceCache = Date().timeIntervalSince(cacheDate)
+                let distanceFromCache = location.distance(from: cacheLocation)
+                
+                // Utiliser le cache si valide (< 5 min ET < 500m)
+                if timeSinceCache < cacheValidityDuration && distanceFromCache < maxCacheDistance {
+                    print("✅ Utilisation du cache pour \(serviceType.rawValue)")
+                    allServices.append(contentsOf: cachedServices)
+                    continue
+                }
+            }
+            
+            // Ajouter à la liste des types à récupérer depuis l'API
+            typesToFetchFromAPI.insert(serviceType)
+        }
+        
+        // Si tous les résultats sont en cache, retourner directement
+        if typesToFetchFromAPI.isEmpty {
+            services = allServices.map { ServicePointUI(from: $0) }
+                .sorted { ($0.distance ?? .infinity) < ($1.distance ?? .infinity) }
+            isLoading = false
+            return
+        }
         
         // Récupérer les services de tous les repositories concernés
         // Utilisation de requêtes séquentielles avec délai pour éviter le rate limiting
-        var allServices: [ServicePoint] = []
         
-        for repository in repositories where typesToFetch.contains(repository.serviceType) && repository.isEnabled {
+        for repository in repositories where typesToFetchFromAPI.contains(repository.serviceType) && repository.isEnabled {
             do {
                 // Délai de 500ms entre chaque requête pour éviter le rate limiting (429)
                 if !allServices.isEmpty {
@@ -140,6 +180,9 @@ class ProximityViewModel: ObservableObject {
                     radius: self.searchRadius
                 )
                 allServices.append(contentsOf: results)
+                
+                // Mettre à jour le cache pour ce type de service
+                cachedResults[repository.serviceType] = (results, Date(), location)
             } catch {
                 // En cas d'erreur, continuer avec les autres services
                 print("⚠️ Erreur lors de la récupération de \(repository.serviceType.rawValue): \(error)")
