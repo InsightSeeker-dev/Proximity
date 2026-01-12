@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		C5A113FEB6504805A4E5AA28 /* ServicePointUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicePointUI.swift; sourceTree = "<group>"; };
+
+		673BF3BCE1F045AA9E59CE0E /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+
+		BFAB473B11AE4578AA6E1C63 /* DataSourceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceError.swift; sourceTree = "<group>"; };
+
 		ECBBEE8C2ECCBF660067DBCB /* Proximity.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Proximity.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -119,6 +125,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FB6BFE1EC514FD7844E0048 /* ServicePointUI.swift in Sources */,
+				036F38FC1FEE44A787773DFA /* LocationManager.swift in Sources */,
+				0F67F9EEA8AD4ED5A8E626D6 /* DataSourceError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
