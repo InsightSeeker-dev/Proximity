@@ -8,6 +8,7 @@
 
 import SwiftUI
 import MapKit
+import CoreLocation
 
 struct MapView: View {
     let services: [ServicePointUI]
