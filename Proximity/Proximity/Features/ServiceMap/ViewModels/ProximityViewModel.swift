@@ -9,6 +9,7 @@
 import Foundation
 import SwiftUI
 import CoreLocation
+import Combine
 
 /// ViewModel principal pour la gestion des services de proximité
 @MainActor
