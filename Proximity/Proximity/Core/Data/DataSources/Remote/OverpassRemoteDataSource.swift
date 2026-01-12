@@ -44,7 +44,7 @@ class OverpassRemoteDataSource {
     }
     
     /// Exécute une requête Overpass
-    private func executeQuery(_ query: String) async throws -> [OverpassElement] {
+    func executeQuery(_ query: String) async throws -> [OverpassElement] {
         guard let url = URL(string: baseURL) else {
             throw DataSourceError.invalidURL
         }

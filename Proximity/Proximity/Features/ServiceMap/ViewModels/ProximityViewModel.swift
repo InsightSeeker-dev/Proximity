@@ -36,7 +36,7 @@ class ProximityViewModel: ObservableObject {
     /// Message d'erreur
     @Published var errorMessage: String?
     
-    // MARK: - Private Propertieson
+    // MARK: - Private Properties
     
     private var repositories: [ServiceRepository] = []
     let locationManager = LocationManager()
