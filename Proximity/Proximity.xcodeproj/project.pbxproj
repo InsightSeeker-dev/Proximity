@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		D9104022CA98432884A76B89 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+
+		E4877EBBC7A140B58CC9EB60 /* ServicePointUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicePointUI.swift; sourceTree = "<group>"; };
+
+		A41F6972A9AC40FDBF663755 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+
+		EFD26C3097CB4F23B6AB64E9 /* DataSourceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSourceError.swift; sourceTree = "<group>"; };
+
 		C5A113FEB6504805A4E5AA28 /* ServicePointUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicePointUI.swift; sourceTree = "<group>"; };
 
 		673BF3BCE1F045AA9E59CE0E /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
@@ -125,6 +133,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F1F164B533B4D569B40F0CE /* ServicePointUI.swift in Sources */,
+				D11C43FF11E14720B2C42771 /* LocationManager.swift in Sources */,
+				DF943CDAFD4541E6BAE4D266 /* DataSourceError.swift in Sources */,
 				1FB6BFE1EC514FD7844E0048 /* ServicePointUI.swift in Sources */,
 				036F38FC1FEE44A787773DFA /* LocationManager.swift in Sources */,
 				0F67F9EEA8AD4ED5A8E626D6 /* DataSourceError.swift in Sources */,
@@ -261,7 +272,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Proximity/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -292,7 +304,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Proximity/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
