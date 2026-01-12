@@ -23,7 +23,7 @@ struct ODSRecord: Codable {
 struct ODSFields: Codable {
     let nomStation: String?
     let adresseStation: String?
-    let coordonneesXY: [Double]?
+    let geoPointBorne: [Double]?  // Coordonnées [latitude, longitude]
     let nomOperateur: String?
     let puissanceNominale: Double?
     let typesPrise: String?
@@ -32,7 +32,7 @@ struct ODSFields: Codable {
     enum CodingKeys: String, CodingKey {
         case nomStation = "n_station"
         case adresseStation = "ad_station"
-        case coordonneesXY = "coordonneesxy"
+        case geoPointBorne = "geo_point_borne"  // Nom correct du champ
         case nomOperateur = "n_operateur"
         case puissanceNominale = "puiss_max"
         case typesPrise = "type_prise"
@@ -45,9 +45,10 @@ struct ODSFields: Codable {
 extension ODSRecord {
     /// Convertit le DTO en modèle du domaine
     func toDomain(userLocation: CLLocation) -> ServicePoint? {
-        guard let coords = fields.coordonneesXY,
+        guard let coords = fields.geoPointBorne,
               coords.count >= 2 else { return nil }
         
+        // geo_point_borne contient [latitude, longitude]
         let coordinate = CLLocationCoordinate2D(latitude: coords[0], longitude: coords[1])
         let stationLocation = CLLocation(latitude: coords[0], longitude: coords[1])
         let distance = userLocation.distance(from: stationLocation)
