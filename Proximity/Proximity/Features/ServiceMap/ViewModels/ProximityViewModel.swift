@@ -48,6 +48,14 @@ class ProximityViewModel: ObservableObject {
     /// Distance maximale pour considérer le cache valide (500m)
     private let maxCacheDistance: Double = 500
     
+    // MARK: - Debounce
+    
+    /// Timestamp du dernier fetch
+    private var lastFetchTime: Date?
+    
+    /// Intervalle minimum entre deux fetch (5 secondes)
+    private let minimumFetchInterval: TimeInterval = 5.0
+    
     // MARK: - Private Properties
     
     private var repositories: [ServiceRepository] = []
@@ -115,6 +123,14 @@ class ProximityViewModel: ObservableObject {
     
     /// Récupère les services à proximité
     func fetchNearbyServices() async {
+        // Debounce : ignorer si appel trop récent
+        if let last = lastFetchTime,
+           Date().timeIntervalSince(last) < minimumFetchInterval {
+            print("⏱️ Debounce : fetch ignoré (trop récent)")
+            return
+        }
+        lastFetchTime = Date()
+        
         guard let location = locationManager.location else {
             errorMessage = "Localisation non disponible"
             return

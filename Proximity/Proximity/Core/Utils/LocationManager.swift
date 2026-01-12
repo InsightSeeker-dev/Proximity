@@ -23,7 +23,7 @@ class LocationManager: NSObject, ObservableObject {
         
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.distanceFilter = 50 // Mise à jour tous les 50m
+        locationManager.distanceFilter = 200 // Mise à jour tous les 200m (optimisé pour batterie)
     }
     
     func requestPermission() {
