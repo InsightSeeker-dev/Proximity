@@ -17,12 +17,12 @@ class OverpassRemoteDataSource {
     func fetchToilets(around location: CLLocationCoordinate2D, radius: Double) async throws -> [OverpassElement] {
         let radiusMeters = Int(radius * 1000)
         let query = """
-        [out:json][timeout:25];
+        [out:json][timeout:40];
         (
           node["amenity"="toilets"](around:\(radiusMeters),\(location.latitude),\(location.longitude));
           way["amenity"="toilets"](around:\(radiusMeters),\(location.latitude),\(location.longitude));
         );
-        out center;
+        out center 50;
         """
         
         return try await executeQuery(query)
@@ -32,12 +32,12 @@ class OverpassRemoteDataSource {
     func fetchPharmacies(around location: CLLocationCoordinate2D, radius: Double) async throws -> [OverpassElement] {
         let radiusMeters = Int(radius * 1000)
         let query = """
-        [out:json][timeout:25];
+        [out:json][timeout:40];
         (
           node["amenity"="pharmacy"](around:\(radiusMeters),\(location.latitude),\(location.longitude));
           way["amenity"="pharmacy"](around:\(radiusMeters),\(location.latitude),\(location.longitude));
         );
-        out center;
+        out center 50;
         """
         
         return try await executeQuery(query)
